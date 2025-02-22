@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:<db_password>@webflux-cluster.d3bns.mongodb.net/webflux?retryWrites=true&w=majority&appName=webflux-cluster
