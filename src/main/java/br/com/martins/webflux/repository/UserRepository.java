@@ -1,7 +1,6 @@
 package br.com.martins.webflux.repository;
 
 import br.com.martins.webflux.entity.User;
-import br.com.martins.webflux.model.request.UserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Repository;
