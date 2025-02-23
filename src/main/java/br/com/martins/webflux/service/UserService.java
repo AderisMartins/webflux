@@ -1,6 +1,7 @@
 package br.com.martins.webflux.service;
 
 import br.com.martins.webflux.entity.User;
+import br.com.martins.webflux.exception.ObjectNotFoundException;
 import br.com.martins.webflux.mapper.UserMapper;
 import br.com.martins.webflux.model.request.UserRequest;
 import br.com.martins.webflux.repository.UserRepository;
@@ -20,6 +21,9 @@ public class UserService {
     }
 
     public Mono<User> findById(final String id){
-        return repository.findById(id);
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(
+                        new ObjectNotFoundException(String.format("Objeto não encontrado. Id: %s, Type: %s", id, User.class.getSimpleName()))
+                ));
     }
 }

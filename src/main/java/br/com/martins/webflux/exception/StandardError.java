@@ -1,4 +1,4 @@
-package br.com.martins.webflux.exceptions;
+package br.com.martins.webflux.exception;
 
 import lombok.Builder;
 import lombok.Data;
