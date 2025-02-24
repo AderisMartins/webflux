@@ -9,7 +9,6 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,8 +22,7 @@ import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ExtendWith(SpringExtension.class)
@@ -57,7 +55,7 @@ class UserControllerImplTest {
                 .exchange()
                 .expectStatus().isCreated();
 
-        Mockito.verify(service, times(1)).save(any(UserRequest.class));
+        verify(service, times(1)).save(any(UserRequest.class));
     }
 
     @Test
@@ -96,6 +94,9 @@ class UserControllerImplTest {
                 .jsonPath("$.name").isEqualTo("teste")
                 .jsonPath("$.email").isEqualTo("teste@mail.com")
                 .jsonPath("$.password").isEqualTo("123");
+
+        verify(service, times(1)).findById(anyString());
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
@@ -115,10 +116,32 @@ class UserControllerImplTest {
                 .jsonPath("$.[0].name").isEqualTo("teste")
                 .jsonPath("$.[0].email").isEqualTo("teste@mail.com")
                 .jsonPath("$.[0].password").isEqualTo("123");
+
+        verify(service, times(1)).findAll();
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
-    void testUpdate() {
+    @DisplayName("Teste endpoint update com sucesso")
+    void testUpdateWithSuccess() {
+        UserRequest request = new UserRequest("teste", "teste@mail.com", "123");
+        UserResponse userResponse = new UserResponse("12345", "teste", "teste@mail.com", "123");
+
+        when(service.update(anyString(), any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.patch().uri("/users/" + "12345")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo("12345")
+                .jsonPath("$.name").isEqualTo("teste")
+                .jsonPath("$.email").isEqualTo("teste@mail.com")
+                .jsonPath("$.password").isEqualTo("123");
+
+        verify(service, times(1)).update(anyString(), any(UserRequest.class));
+        verify(mapper).toResponse(any(User.class));
     }
 
     @Test
