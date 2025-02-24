@@ -1,6 +1,7 @@
 package br.com.martins.webflux.controller;
 
 import br.com.martins.webflux.entity.User;
+import br.com.martins.webflux.exception.ObjectNotFoundException;
 import br.com.martins.webflux.mapper.UserMapper;
 import br.com.martins.webflux.model.request.UserRequest;
 import br.com.martins.webflux.model.response.UserResponse;
@@ -145,6 +146,24 @@ class UserControllerImplTest {
     }
 
     @Test
-    void testDelete() {
+    @DisplayName("Teste endpoint delete com sucesso")
+    void testDeleteWithSuccess() {
+        when(service.delete(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        webTestClient.delete().uri("/users/" + "12345")
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(service).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Teste endpoint delete sem sucesso")
+    void testDeleteWithoutSuccess() {
+        when(service.delete(anyString())).thenThrow(new ObjectNotFoundException(""));
+
+        webTestClient.delete().uri("/users/" + "12345")
+                .exchange()
+                .expectStatus().isNotFound();
     }
 }
