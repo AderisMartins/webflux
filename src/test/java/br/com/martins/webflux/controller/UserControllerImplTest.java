@@ -3,6 +3,7 @@ package br.com.martins.webflux.controller;
 import br.com.martins.webflux.entity.User;
 import br.com.martins.webflux.mapper.UserMapper;
 import br.com.martins.webflux.model.request.UserRequest;
+import br.com.martins.webflux.model.response.UserResponse;
 import br.com.martins.webflux.service.UserService;
 import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -77,18 +80,48 @@ class UserControllerImplTest {
     }
 
     @Test
-    void findById() {
+    @DisplayName("Teste endpoint findById com sucesso")
+    void testFindByIdWithSuccess() {
+        UserResponse userResponse = new UserResponse("12345", "teste", "teste@mail.com", "123");
+
+        when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.get().uri("/users/" + "12345")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo("12345")
+                .jsonPath("$.name").isEqualTo("teste")
+                .jsonPath("$.email").isEqualTo("teste@mail.com")
+                .jsonPath("$.password").isEqualTo("123");
     }
 
     @Test
-    void findAll() {
+    @DisplayName("Teste endpoint findAll com sucesso")
+    void testFindAllWithSuccess() {
+        UserResponse userResponse = new UserResponse("12345", "teste", "teste@mail.com", "123");
+
+        when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(userResponse);
+
+        webTestClient.get().uri("/users")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].id").isEqualTo("12345")
+                .jsonPath("$.[0].name").isEqualTo("teste")
+                .jsonPath("$.[0].email").isEqualTo("teste@mail.com")
+                .jsonPath("$.[0].password").isEqualTo("123");
     }
 
     @Test
-    void update() {
+    void testUpdate() {
     }
 
     @Test
-    void delete() {
+    void testDelete() {
     }
 }
