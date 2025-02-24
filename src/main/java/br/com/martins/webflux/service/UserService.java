@@ -37,4 +37,11 @@ public class UserService {
                 .map(entity -> mapper.toEntity(request, entity))
                 .flatMap(repository::save);
     }
+
+    public Mono<User> delete(final String id){
+        return repository.findAndRemove(id)
+                .switchIfEmpty(Mono.error(
+                        new ObjectNotFoundException(String.format("Objeto não encontrado. Id: %s, Type: %s", id, User.class.getSimpleName()))
+                ));
+    }
 }
